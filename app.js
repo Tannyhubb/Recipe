@@ -101,63 +101,63 @@ const renderRecipes = (recipesToRender) => {
 };
 
 // Pure function: filter recipes based on mode
-//const applyFilter = (recipesList, filterMode) => {
-  //  if (filterMode === 'all') return recipesList;
+const applyFilter = (recipesList, filterMode) => {
+    if (filterMode === 'all') return recipesList;
 
-    //if (filterMode === 'quick') {
-      //  return recipesList.filter((recipe) => recipe.time < 30);
-    //}
+    if (filterMode === 'quick') {
+        return recipesList.filter((recipe) => recipe.time < 30);
+    }
 
     // difficulty filters: easy, medium, hard
-    //return recipesList.filter((recipe) => recipe.difficulty === filterMode);
-//};
+    return recipesList.filter((recipe) => recipe.difficulty === filterMode);
+};
 
 // Pure function: sort recipes based on mode (works on a shallow copy)
-//const applySort = (recipesList, sortMode) => {
-  //  if (!sortMode) return recipesList;
+const applySort = (recipesList, sortMode) => {
+    if (!sortMode) return recipesList;
 
-    //const copy = [...recipesList];
+    const copy = [...recipesList];
 
-    //if (sortMode === 'name') {
-      //  return copy.sort((a, b) =>
-        //    a.title.localeCompare(b.title)
-        //);
-    //}
+    if (sortMode === 'name') {
+        return copy.sort((a, b) =>
+            a.title.localeCompare(b.title)
+        );
+    }
 
-    //if (sortMode === 'time') {
-      //  return copy.sort((a, b) => a.time - b.time);
-    //}
+    if (sortMode === 'time') {
+        return copy.sort((a, b) => a.time - b.time);
+    }
 
-    //return copy;
-//};
+    return copy;
+};
 
 // Central function: combines filter + sort then renders
-//const updateDisplay = () => {
-  //  const filtered = applyFilter(recipes, currentFilter);
-    //const sorted = applySort(filtered, currentSort);
-    //renderRecipes(sorted);
-//};
+const updateDisplay = () => {
+    const filtered = applyFilter(recipes, currentFilter);
+    const sorted = applySort(filtered, currentSort);
+    renderRecipes(sorted);
+};
 
 // Helper: update active button styles
-//const setActiveButton = (buttons, activeAttr, value) => {
-  //  buttons.forEach((btn) => {
-    //    if (btn.getAttribute(activeAttr) === value) {
-      //      btn.classList.add('active');
-        //} else {
-          //  btn.classList.remove('active');
-        //}
-    //});
-//};
+const setActiveButton = (buttons, activeAttr, value) => {
+    buttons.forEach((btn) => {
+        if (btn.getAttribute(activeAttr) === value) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+};
 
 // Event listeners for filters
-//filterButtons.forEach((button) => {
-  //  button.addEventListener('click', () => {
-    //    const selectedFilter = button.getAttribute('data-filter');
-      //  currentFilter = selectedFilter;
-        //setActiveButton(filterButtons, 'data-filter', selectedFilter);
-        //updateDisplay();
-    //});
-//});
+filterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        const selectedFilter = button.getAttribute('data-filter');
+        currentFilter = selectedFilter;
+        setActiveButton(filterButtons, 'data-filter', selectedFilter);
+        updateDisplay();
+    });
+});
 
 // Event listeners for sorters
 sortButtons.forEach((button) => {
