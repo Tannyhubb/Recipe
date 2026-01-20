@@ -150,3 +150,193 @@ main {
     color: white;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
+
+/* ============ EXPANDABLE SECTIONS ============ */
+
+.recipe-expandable {
+    margin-top: 1.25rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.expand-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f0f4ff;
+    color: #667eea;
+    border: 1px solid #667eea;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.expand-btn:hover {
+    background-color: #667eea;
+    color: white;
+    transform: translateX(2px);
+}
+
+/* Hidden state for sections */
+.hidden {
+    display: none !important;
+}
+
+/* ============ INGREDIENTS SECTION ============ */
+
+.ingredients-section {
+    margin-top: 0.75rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.ingredients-list {
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.ingredients-list li {
+    padding-left: 1.5rem;
+    position: relative;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.ingredients-list li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-weight: bold;
+}
+
+/* ============ STEPS SECTION ============ */
+
+.steps-section {
+    margin-top: 0.75rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.steps-list {
+    list-style: none;
+    padding-left: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.step-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: #f9fafb;
+    border-left: 3px solid #667eea;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.step-item:before {
+    content: counter(step-counter);
+    counter-increment: step-counter;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    background-color: #667eea;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.steps-list {
+    counter-reset: step-counter;
+}
+
+/* Substeps styling */
+.steps-level-1 {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 2rem;
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.steps-level-1 .step-item {
+    background-color: #f5f3ff;
+    border-left-color: #9ca3af;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.steps-level-1 .step-item:before {
+    background-color: #9ca3af;
+    min-width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+}
+
+/* Deeper nesting */
+.steps-level-2 {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 1.5rem;
+    margin-top: 0.4rem;
+    display: grid;
+    gap: 0.4rem;
+}
+
+.steps-level-2 .step-item {
+    background-color: #faf5ff;
+    border-left-color: #d1d5db;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+}
+
+.steps-level-2 .step-item:before {
+    background-color: #d1d5db;
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+}
+
+/* Animation for expanding sections */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .recipe-card {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .steps-level-1 {
+        margin-left: 1rem;
+    }
+
+    .step-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .step-item:before {
+        align-self: flex-start;
+    }
+}
