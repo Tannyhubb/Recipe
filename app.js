@@ -255,12 +255,76 @@ const RecipeApp = (() => {
     const recipeContainer = document.querySelector('#recipe-container');
     const filterButtons = document.querySelectorAll('.filters button');
     const sortButtons = document.querySelectorAll('.sorters button');
+    const searchInput = document.querySelector('#search-input');
+    const recipeCounterDisplay = document.querySelector('#recipe-counter');
 
     // State
     let currentFilter = 'all';
     let currentSort = null;
+    let currentSearchQuery = '';
+    let favorites = loadFavorites();
 
     // ============= PRIVATE HELPER FUNCTIONS =============
+
+    // Load favorites from localStorage
+    const loadFavorites = () => {
+        const saved = localStorage.getItem('recipeAppFavorites');
+        return saved ? JSON.parse(saved) : [];
+    };
+
+    // Save favorites to localStorage
+    const saveFavorites = () => {
+        localStorage.setItem('recipeAppFavorites', JSON.stringify(favorites));
+    };
+
+    // Toggle favorite status for a recipe
+    const toggleFavorite = (recipeId) => {
+        const index = favorites.indexOf(recipeId);
+        if (index > -1) {
+            favorites.splice(index, 1);
+        } else {
+            favorites.push(recipeId);
+        }
+        saveFavorites();
+        updateDisplay();
+    };
+
+    // Check if recipe is favorited
+    const isFavorited = (recipeId) => {
+        return favorites.includes(recipeId);
+    };
+
+    // Debounce function for search
+    const createDebounce = (func, delay = 300) => {
+        let timeoutId;
+        return (query) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func(query);
+            }, delay);
+        };
+    };
+
+    // Handle search input with debouncing
+    const handleSearchInput = (query) => {
+        currentSearchQuery = query.toLowerCase().trim();
+        updateDisplay();
+    };
+
+    const debouncedSearch = createDebounce(handleSearchInput, 300);
+
+    // Search recipes by title and ingredients
+    const searchRecipes = (recipesList, searchQuery) => {
+        if (!searchQuery) return recipesList;
+
+        return recipesList.filter((recipe) => {
+            const titleMatch = recipe.title.toLowerCase().includes(searchQuery);
+            const ingredientMatch = recipe.ingredients.some((ingredient) =>
+                ingredient.toLowerCase().includes(searchQuery)
+            );
+            return titleMatch || ingredientMatch;
+        });
+    };
 
     // Recursive function to render steps (supports nested substeps)
     const renderStepsRecursively = (stepsArray, level = 0) => {
@@ -299,9 +363,17 @@ const RecipeApp = (() => {
 
         const stepsHTML = recipe.steps ? renderStepsRecursively(recipe.steps) : '';
 
+        const favoriteClass = isFavorited(recipe.id) ? 'favorited' : '';
+        const favoriteButtonText = isFavorited(recipe.id) ? '❤️' : '🤍';
+
         return `
             <div class="recipe-card" data-id="${recipe.id}">
-                <h3>${recipe.title}</h3>
+                <div class="recipe-card-header">
+                    <h3>${recipe.title}</h3>
+                    <button class="favorite-btn ${favoriteClass}" data-recipe-id="${recipe.id}" title="Add to favorites">
+                        ${favoriteButtonText}
+                    </button>
+                </div>
                 <div class="recipe-meta">
                     <span>⏱️ ${recipe.time} min</span>
                     <span class="difficulty ${recipe.difficulty}">${recipe.difficulty}</span>
@@ -336,12 +408,23 @@ const RecipeApp = (() => {
             .join('');
         
         recipeContainer.innerHTML = recipeCardsHTML;
+        updateRecipeCounter(recipesToRender.length);
         attachEventDelegation();
+    };
+
+    // Update recipe counter display
+    const updateRecipeCounter = (displayedCount) => {
+        const totalCount = recipes.length;
+        recipeCounterDisplay.textContent = `Showing ${displayedCount} of ${totalCount} recipes`;
     };
 
     // Filter recipes
     const applyFilter = (recipesList, filterMode) => {
         if (filterMode === 'all') return recipesList;
+
+        if (filterMode === 'favorites') {
+            return recipesList.filter((recipe) => isFavorited(recipe.id));
+        }
 
         if (filterMode === 'quick') {
             return recipesList.filter((recipe) => recipe.time < 30);
@@ -371,7 +454,8 @@ const RecipeApp = (() => {
 
     // Update display
     const updateDisplay = () => {
-        const filtered = applyFilter(recipes, currentFilter);
+        let filtered = applyFilter(recipes, currentFilter);
+        filtered = searchRecipes(filtered, currentSearchQuery);
         const sorted = applySort(filtered, currentSort);
         renderRecipes(sorted);
     };
@@ -387,11 +471,12 @@ const RecipeApp = (() => {
         });
     };
 
-    // Event delegation for expand/collapse buttons
+    // Event delegation for expand/collapse buttons and favorites
     const attachEventDelegation = () => {
         recipeContainer.addEventListener('click', (e) => {
             const toggleIngredientsBtn = e.target.closest('.toggle-ingredients');
             const toggleStepsBtn = e.target.closest('.toggle-steps');
+            const favoriteBtn = e.target.closest('.favorite-btn');
 
             if (toggleIngredientsBtn) {
                 const recipeId = toggleIngredientsBtn.getAttribute('data-recipe-id');
@@ -422,6 +507,11 @@ const RecipeApp = (() => {
                     toggleStepsBtn.textContent = text;
                 }
             }
+
+            if (favoriteBtn) {
+                const recipeId = parseInt(favoriteBtn.getAttribute('data-recipe-id'), 10);
+                toggleFavorite(recipeId);
+            }
         });
     };
 
@@ -445,6 +535,11 @@ const RecipeApp = (() => {
             setActiveButton(sortButtons, 'data-sort', currentSort);
             updateDisplay();
         });
+    });
+
+    // Search input listener with debouncing
+    searchInput.addEventListener('input', (e) => {
+        debouncedSearch(e.target.value);
     });
 
     // ============= PUBLIC API =============
